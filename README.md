@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="M95OS Logo" width="160"/>
+</p>
+
 # M95OS (beta_1.1)
 
 Легковесная 32-битная операционная система (x86 Protected Mode) с графическим интерфейсом в стиле Windows 95/98, программным 3D-рендерингом (TinyGL pipeline) и виртуальной файловой системой M95FS.
