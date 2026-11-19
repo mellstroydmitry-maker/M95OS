@@ -1,29 +1,54 @@
 <p align="center">
-  <img src="logo.png" alt="M95OS Logo" width="140"/>
+  <img src="logo.png" alt="M95OS" width="110">
 </p>
 
-<h1 align="center">M95OS (beta_1.1)</h1>
+<h1 align="center">M95OS</h1>
 
 <p align="center">
-  Легковесная 32-битная операционная система (x86 Protected Mode) с интерфейсом в стиле Windows 95/98, программным 3D-рендерингом и виртуальной файловой системой <b>M95FS</b>.
+  A 32-bit x86 hobby operating system written from scratch in C and Assembly, styled after Windows 95.
 </p>
 
-<p align="center">
-  <img src="preview.png" alt="M95OS Desktop Screenshot" width="720"/>
-</p>
+## Features
 
-## Возможности системы
-- **Мультиязычный запуск (EN / RU):** Выбор языка при загрузке, системный шрифт `8×14` с поддержкой UTF-8 кириллицы и переключение раскладки (`Alt + Shift` или через трей).
-- **Графическая оболочка:** Двойная буферизация (`800×600×32bpp`), перекрывающиеся окна с Z-порядком, меню «Пуск», панель задач и системные часы.
-- **TinyGL 3D Studio:** Программный 3D-конвейер со сплошной заливкой треугольников и сортировкой граней по глубине (Painter's Algorithm).
-- **M95 Shell & M95FS:** Командный интерпретатор (`help`, `ver`, `sysinfo`, `mem`, `cpu`, `ls`, `cat`, `color`, `time`, `cube`, `note`, `clear`, `reboot`) и файловая система в RAM, связанная с **Блокнотом** (`note.txt`).
+* **GUI & Graphics:** 800x600 32-bit VBE framebuffer, double buffering via `rep movsl`, overlapping windows, taskbar, Start menu, right-click context menu, and custom UI themes (`DarkWin`, `FlatUI`, cursor colors).
+* **Localization:** Built-in English and Russian (UTF-8 8x14 bitmap font and PS/2 keyboard layouts).
+* **Networking & Browser:**
+  * Bare-metal PCI driver for **Realtek RTL8139** (`10EC:8139`).
+  * Custom **Ethernet II / ARP / IPv4 / UDP** stack.
+  * **M95 Explorer:** lightweight HTML parser (`<h1>`, `<p>`, `<hr>`, `<a href>`) with URL bar, scrolling, and real internet access via `web_gateway.py`.
+* **Apps & Games:**
+  * **M95 Craft:** isometric block-building sandbox.
+  * **M95 Paint:** bitmap canvas editor with palette, brush sizes, and eraser.
+  * **TinyGL 3D:** software 3D cube renderer with triangle rasterization.
+  * **M95 Arcade:** Minesweeper, Snake, Breakout, Tetris, and Pong.
+  * **M95 Shell & Notepad.**
+* **Security & Packages (`[EXP]`):**
+  * Hardware ID generation (`CPUID` + RAM) with admin password hash stored directly to raw disk sector via **ATA PIO**.
+  * Experimental `m95pkg` package manager + C SDK (`sdk/m95_sdk.h`, `sdk/pack_m95.py`) for loading external `.m95` binaries (`xeyes`, `rain`, `radar`).
 
-## Сборка и запуск в Linux
+## Build & Run
+
+Requires `nasm`, `gcc` (with 32-bit multilib), `ld`, `grub-mkrescue`, `xorriso`, and `qemu-system-i386`.
+
 ```bash
+chmod +x build.sh
 ./build.sh
-qemu-system-i386 -m 256M -vga std -cdrom m95os.iso -display gtk
+
+# Optional: create a 1MB raw disk image to persist the admin password
+dd if=/dev/zero of=m95_disk.img bs=1M count=1
+
+# Optional: start the host UDP-to-HTTP gateway for M95 Explorer
+python3 web_gateway.py &
+
+# Boot in QEMU
+qemu-system-i386 -m 256M -vga std \
+  -drive file=m95_disk.img,format=raw \
+  -cdrom m95os.iso \
+  -netdev user,id=net0,hostfwd=udp::5555-:5555 \
+  -device rtl8139,netdev=net0 \
+  -display gtk
 ```
 
-## Лицензия
-Исходный код ядра и утилит **M95OS** распространяется под лицензией [MIT](LICENSE).  
-*(Примечание: готовый загрузочный образ `m95os.iso` включает загрузчик GNU GRUB, распространяемый по лицензии GPLv3).*
+## License
+
+GPL-3.0
